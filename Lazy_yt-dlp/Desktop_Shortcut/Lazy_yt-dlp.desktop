@@ -1,0 +1,11 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=Lazy_yt-dlp
+Terminal=true
+Exec=/home/$USER/Lazy_yt-dlp/Lazy_yt-dlp
+Type=Application
+Icon=/home/$USER/Lazy_yt-dlp/icon/Yt-dlp_logo.svg.png
+
+
+
+
