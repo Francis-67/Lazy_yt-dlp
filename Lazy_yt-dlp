@@ -1,0 +1,1543 @@
+#!/bin/bash
+
+set -euo pipefail
+IFS=$'\n\t'
+#The command set -euo pipefail is used to improve the robustness and reliability of scripts. 
+#The command IFS=$'\n\t' is used to set the Internal Field Separator (IFS) to a combination of newline and tab characters. 
+
+#exec env --ignore-environment /bin/bash
+#clear variables
+
+cat << "EOF"
+                                                                                                                                                                                         
+	$$$$$$$$\  $$$$$$\      $$$$$$$$\ 
+	$$  _____|$$  __$$\     $$  _____|
+	$$ |      $$ /  $$ |    $$ |      
+	$$$$$\    $$$$$$$$ |    $$$$$\    
+	$$  __|   $$  __$$ |    $$  __|   
+	$$ |      $$ |  $$ |    $$ |      
+	$$ |$$\   $$ |  $$ |$$\ $$ |      
+	\__|\__|  \__|  \__|\__|\__|      
+                                      
+         TESTED ON UBUNTU 24.04 LTS                                                                                                                                                                                                                  
+EOF
+
+#######################################################################################
+
+# set text color  Example:  echo ""$RED"M A I N - M E N U"$RESET""
+BLACK=$(tput setaf 0)
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+LIME_YELLOW=$(tput setaf 190)
+POWDER_BLUE=$(tput setaf 153)
+HOT_PINK=$(tput setaf 200)
+BLUE=$(tput setaf 4)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
+WHITE=$(tput setaf 7)
+BRIGHT=$(tput bold)
+#NORMAL=$(tput sgr0)
+BLINK=$(tput blink)
+REVERSE=$(tput smso)
+UNDERLINE=$(tput smul)
+under_line=$(tput sgr 0 1)
+RESET=$(tput sgr 0)
+
+# list all colors run in terminal
+#fg='\e[38;5;';bg='\e[48;5;';for ix in {1..256}; do printf "fg \"%s\e[38;5;%sm%s\e[0mm\"\tbg \"%s\e[48;5;%sm%s\e[0mm\"\n" ${fg} ${ix} ${ix} ${bg} ${ix} ${ix}; done; printf "\e[0m"
+
+#run below to get setaf colors thanks to https://unix.stackexchange.com/users/117549/jeff-schaller
+#!/bin/bash
+#color(){
+    #for c; do
+        #printf '\e[48;5;%dm%03d' $c $c
+    #done
+    #printf '\e[0m \n'
+#}
+
+#IFS=$' \t\n'
+#color {0..15}
+#for ((i=0;i<6;i++)); do
+    #color $(seq $((i*36+16)) $((i*36+51)))
+#done
+#color {232..255}
+
+########################################################################################
+
+pause2(){
+  	read -p ""$LIME_YELLOW"Enter to Continue"$RESET"" fackEnterKey
+}
+
+
+createfolder(){   echo ""$GREEN"Would you like to create a folder in the directory selected?(Y/N) ."
+   	echo ""
+ 	read -n 1 userin 
+	if [[ $userin == "N" || $userin == 'n' ]]; then 
+	echo ""
+	foldersave=""	
+	echo ""
+	
+	elif [[ $userin == "Y" || $userin == 'y' ]]; then
+
+	echo ""
+	echo ""$GREEN"Enter the name of the folder you want to create then press enter."$RESET""
+	read -p "Enter Folder Name: "  savefolder
+	echo ""
+	foldersave="/$savefolder"
+	else
+	echo ""$RED" Error please enter either (Y/N)... "$RESET"" 
+	continue 
+
+	echo ""$LIME_YELLOW"You chose :"$RESET""  $foldersave
+		
+	fi
+
+}
+
+
+keepvid(){
+	echo ""$GREEN"Keep video portion of content (Y/N)"$RESET"."
+   	 
+	read -n 1 keep #Need a user input.YorN
+	if [[ $keep == "N" || $keep == 'n' ]]; then 
+	echo ""
+	save="" 
+	#Provides null input
+
+	elif [[ $keep == "Y" || $keep == 'y' ]]; then
+	echo ""
+	save=-k  
+	#Add keep files
+	
+	else
+	echo ""$RED" Error please enter either (Y/N)... "$RESET"" 
+	continue 
+	# Use continue to loop back if wrong input detected
+	fi
+}
+
+formatlist(){
+	#Shows formatting of the video of selected URL
+	echo ""$GREEN"Do you wish to see format list? It's your friend.(Y/N)"$RESET"."
+   	 
+	read -n 1 list #Need a user input.YorN
+	if [[ $list == "N" || $list == 'n' ]]; then 
+	echo ""
+	
+
+	elif [[ $list == "Y" || $list == 'y' ]]; then
+	echo ""
+	gnome-terminal  --geometry=120x54 -- bash -c "yt-dlp --list-formats $vidurl; exec bash"
+	#yt-dlp --list-formats $vidurl #Show user formats in new window. Stays open until user closes it.
+	echo ""
+	
+	else
+	echo ""$RED" Error please enter either (Y/N)... "$RESET"" 
+	continue # We use continue to loop back if wrong input detected.
+	fi
+}
+
+rename(){
+	for file in "$savepath""$foldersave"/*; do mv "$file" "${file// \[*\]/}" 2>/dev/null; done 
+        for file in "$savepath""$foldersave"/*; do mv "$file" "${file// \(*\)/}" 2>/dev/null; done 
+        #Funtion to remove () and [] and everything between in the naming which is annoying
+        #$savepath needs the "" to deal with spaces concatenated into a single string in the directory path   
+        #for file in $to_watch"$SAVEPATH"/*; do mv "$file" "${file// \[*\]/}"; done
+        #2>/dev/null  snuff messages
+}
+		
+########################################################################################
+			#Left more menu options to add things
+	while :
+	do
+	echo ""
+	echo "          ~~~~~~~~~~~~~~~~~~~~~"
+	echo "           "$HOT_PINK"M A I N - M E N U"$RESET""
+	echo "	     "$BLUE"F.F. "$YELLOW"Ver 13.0"$RESET""
+	echo "          "$LIME_YELLOW"Lazyman Quick yt-dlp"$RESET""
+	echo "          ~~~~~~~~~~~~~~~~~~~~~"
+	echo ""
+	echo ""
+	echo -e "\t1.  "$GREEN"Install"$RESET" yt-dlp"
+	echo -e "\t2.  "$GREEN"Audio"$RESET"   Audio Lazy Version MP3"
+	echo -e "\t3.  "$GREEN"Audio"$RESET"   User Selected All Formats"
+	echo -e "\t4.  "$GREEN"Video"$RESET"   A/V Best Quality MP4"
+	echo -e "\t5.  "$GREEN"Audio"$RESET"   Best Quality M4A"
+	echo -e "\t6.  "$GREEN"Install"$RESET" EMPTY"
+	echo -e "\t7.  "$GREEN"Install"$RESET" EMPTY"
+	echo -e "\t8.  "$GREEN"Install"$RESET" EMPTY"
+	echo -e "\t9.  "$GREEN"Install"$RESET" EMPTY"
+	echo -e "\t10. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t11. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t12. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t13. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t14. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t15. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t16. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t17. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t18. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t19. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t20. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t21. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t22. "$GREEN"Install"$RESET" EMPTY"
+	#echo -e "\t23. "$GREEN"Install"$RESET" EMPTY"
+	echo -e "\t24. "$MAGENTA"TOOLS"$RESET" "
+	echo -e "\t99. "$YELLOW"Exit Menu"$RESET""
+	echo ""
+	echo -n ""$LIME_YELLOW"Please enter your choice and press Enter:"$RESET"" 
+	echo ""
+	read choice
+	case $choice in
+
+################################################################################################################ONE
+# do something in one SUBMENU I
+
+	"1"|"1")
+	 while :
+    	 do
+	echo "      	~~~~~~~~~~~~~~~~~~~~~"
+	echo "          "$HOT_PINK"S U B - M E N U 1"$RESET""
+	echo "           "$BLUE" F.F. "$YELLOW"Ver 13.0"$RESET""
+	echo "           "$MAGENTA" Couch Potato"$RESET""
+	echo "         ~~~~~~~~~~~~~~~~~~~~~"
+	echo ""
+	echo ""
+    echo -e "\tA. "$YELLOW"Print this menu again"$RESET""
+    echo -e "\tB. "$GREEN"Install"$RESET"  yt-dlp via snap"
+    echo -e "\tC. "$GREEN"Install"$RESET"  yt-dlp via pip"
+    echo -e "\tD. "$GREEN"Install"$RESET"  yt-dlp via curl"
+    echo -e "\tE. "$GREEN"Install"$RESET"  yt-dlp via wget"
+    echo -e "\tF. "$GREEN"Install"$RESET"  yt-dlp via ppa"
+    echo -e "\tG. "$GREEN"Dwonload"$RESET" yt-dlp Linux X64 Binary"
+    echo -e "\tH. "$GREEN"Install"$RESET"  yt-dlp via apt"
+    echo -e "\tI. "$GREEN"Install"$RESET"  FFMPEG via apt"
+    echo -e "\tJ. "$GREEN"Install"$RESET"  FFMPEG via snap"
+    echo -e "\tK. "$GREEN"Install"$RESET"  FFMPEG via ppa"
+    #echo -e "\tL. "$GREEN"Install"$RESET"  ##"
+    echo -e "\tM. "$GREEN"Visit"$RESET"    yt-dlp GIT"
+    echo -e "\tZ. "$YELLOW"Return to main menu"$RESET""
+    echo ""
+    echo -n ""$LIME_YELLOW"Please enter your choice and press Enter:"$RESET""
+    echo ""
+
+
+    read choice1
+    case $choice1 in
+        "a"|"A")
+
+
+        ;;
+############################################################################################################################################
+#
+
+        "b"|"B")
+
+	echo ""$GREEN"Install via SNAP yt-dlp."$RESET""
+	echo ""$GREEN"Are you ready?."$RESET""
+	echo ""
+	pause2
+	sudo snap install yt-dlp &&
+	echo ""
+	echo ""$GREEN"yt-dlp Version is:"$RESET"   " $(yt-dlp --version)
+	echo ""
+	echo ""$GREEN"Finished"$RESET""
+    echo ""
+	pause2
+  
+    
+
+        ;;
+
+#################################################################################################################################
+
+
+ 	"c"|"C")
+
+	echo ""$GREEN"Install via PIP yt-dlp."
+	echo ""$GREEN"Python 3 must be installed if not already."
+	echo ""$GREEN"After proceeding a check will be performed for Python3"
+	echo ""$GREEN"Do you see it?  If not install Python3 before continuing."
+	echo ""$GREEN"Are you ready?."$RESET""
+pause2
+	echo ""
+	echo ""$YELLOW"Version is:"$RESET"   "$(python3 --version)
+	echo ""
+	echo ""$GREEN"Do you see it?  N to exit Y to continue."$RESET""
+	echo ""
+	read -n 1 userin 
+	if [[ $userin == "N" || $userin == 'n' ]]; then 
+	echo ""
+	echo ""$RED"GOODBYE!!!!!!!!!!!!!!"$RESET""
+	echo ""
+	
+	elif [[ $userin == "Y" || $userin == 'y' ]]; then	
+	sudo apt update &&
+	sudo apt install python3-pip &&
+	echo ""
+	sudo pip install yt-dlp &&
+	echo ""
+	#sudo python3 -m pip install -U yt-dlp &&
+	#sudo python3 -m pip install --no-deps -U yt-dlp &&  #This is no dependencies install minimal, uncomment & comment the one above
+	echo ""$GREEN"yt-dlp version is:"$RESET"   " $(yt-dlp --version)
+	echo ""
+
+        else
+	echo ""$RED" Error please enter either (Y/N)... "$RESET"" 
+	continue # We use continue to loop back if wrong input detected
+        fi
+    echo ""$GREEN"Finished"$RESET""
+    echo ""
+pause2
+
+        ;;
+        
+#################################################################################################################################
+
+
+ 	"d"|"D")
+
+	echo ""$GREEN"Install via CURL yt-dlp."$RESET""
+	echo ""$GREEN"Are you ready?."$RESET""
+	echo ""
+pause2	
+	#curl -L https://github.com/yt-dlp/yt-dlp/raw/master/public.key | gpg --import
+	#gpg --verify SHA2-256SUMS.sig SHA2-256SUMS
+	#gpg --verify SHA2-512SUMS.sig SHA2-512SUMS
+	sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp &&
+	sudo chmod a+rx /usr/local/bin/yt-dlp &&	
+	echo ""
+	echo ""$GREEN"yt-dlp version is:"$RESET"   " $(yt-dlp --version)
+	echo ""
+	echo ""$GREEN"Finished"$RESET""
+    echo ""
+pause2
+	
+        ;;
+        
+#################################################################################################################################
+
+
+ 	"e"|"E")
+
+	echo "$(tput setaf 190)Install via wget yt-dlp."$RESET""
+	echo ""$GREEN"Are you ready?."$RESET""
+	echo ""
+pause2
+	sudo wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp &&
+	sudo chmod a+rx /usr/local/bin/yt-dlp &&
+	echo ""
+	echo ""$GREEN"yt-dlp version is:"$RESET"   " $(yt-dlp --version)
+	echo ""
+	echo ""$GREEN"Finished"$RESET""
+    echo ""
+pause2
+        ;;
+        
+#################################################################################################################################
+
+
+ 	"f"|"F")
+
+	echo "$(tput setaf 190)Install via PPA ppa:tomtomtom yt-dlp."$RESET""
+	echo ""$GREEN"Are you ready?."$RESET""
+pause2        
+    sudo add-apt-repository ppa:tomtomtom/yt-dlp -y &&
+    sudo apt-get update &&
+    sudo apt-get install yt-dlp -y &&
+    echo ""
+	echo ""$GREEN"yt-dlp version is:"$RESET"   " $(yt-dlp --version)
+	echo ""
+	echo ""$GREEN"Finished"$RESET""
+    echo ""
+pause2
+        ;;
+        
+#################################################################################################################################
+
+
+ 	"g"|"G")
+
+	echo ""$GREEN"Get yt-dlp Binary for Linux X64, Python3 and FFMPEG required.$"
+	echo ""$GREEN"You can install a snap FFMPEG in the menu."
+	echo ""$GREEN"This is an amazing project and fun to interact with."
+	echo ""$GREEN"Python3 must be installed if not already."
+	echo ""$GREEN"After proceeding a check will be performed for Python3."
+	echo ""$GREEN"If you do not have Pyhton you can download Binary anyway."$RESET""
+pause2
+        echo ""
+	echo ""$YELLOW"Version is:"$RESET"   "$(python3 --version)
+	echo ""
+	echo ""$GREEN"Do you see it?  N to exit Y to Download Binary."$RESET""
+	#pause2
+	read -n 1 userin #Need a user input.YorN
+	if [[ $userin == "N" || $userin == 'n' ]]; then 
+	echo ""
+	echo ""$RED"GOODBYE!!!!!!!!!!!!!!"$RESET""
+	
+	echo ""
+	elif [[ $userin == "Y" || $userin == 'y' ]]; then
+    wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux && 
+    #Independant binary for Linux. Needs Python3
+    echo ""
+    chmod a+rx yt-dlp &&
+    sudo mv yt-dlp /usr/local/bin &&
+    echo ""
+    nautilus /usr/local/bin
+
+    else
+	echo ""$RED" Error please enter either (Y/N)... "$RESET"" 
+	continue # We use continue to loop back if wrong input detected
+        fi
+pause2
+        ;;        
+        
+#################################################################################################################################
+
+
+ 	"h"|"H")
+
+	echo ""$GREEN"Install yt-dlp via apt repository."$RESET""
+	echo ""$GREEN"Are you ready?."$RESET""
+pause2
+    sudo apt-get update -y &&
+    sudo apt-get install yt-dlp -y &&
+    echo ""
+	echo ""$GREEN"yt-dlp version is:"$RESET"   " $(yt-dlp --version)
+	echo ""
+    echo ""$GREEN"Finished"$RESET""
+    echo ""
+pause2
+	
+        ;; 
+         
+                
+#################################################################################################################################
+
+ 	"i"|"I")
+
+	echo ""$GREEN"Install FFMPEG via apt repository."$RESET""
+	echo ""$GREEN"Are you ready?."$RESET""
+pause2
+    sudo apt-get update -y &&
+    sudo apt-get install ffmpeg -y &&
+    echo ""
+    echo ""$GREEN"FFMPEG version is:"$RESET"   " $(ffmpeg -version) &&
+	echo ""
+    echo ""$GREEN"Finished"$RESET""
+    echo ""
+pause2
+        ;;  
+        
+#################################################################################################################################
+
+ 	"j"|"J")
+
+	echo ""$GREEN"Install snap FFMPEG"$RESET""
+	echo ""$GREEN"Are you ready?"$RESET""
+pause2
+    sudo snap install ffmpeg &&
+    echo ""
+    echo ""$GREEN"FFMPEG version is:"$RESET"   " $(ffmpeg -version) &&
+    echo ""
+    echo ""$GREEN"Finished"$RESET""
+    echo ""
+pause2
+        ;;          
+        
+#################################################################################################################################        
+
+ 	"k"|"K")
+
+	echo ""$GREEN"Install FFMPEG via PPA ppa:ubuntuhandbook1/ffmpeg7."$RESET""
+	echo ""$GREEN"Are you ready?."$RESET""
+pause2
+    sudo add-apt-repository ppa:ubuntuhandbook1/ffmpeg7 &&
+    sudo apt-get update -y &&
+    sudo apt-get install ffmpeg -y &&
+    echo ""
+    echo ""$GREEN"FFMPEG version is:"$RESET"   " $(ffmpeg -version) &&
+	echo ""
+    echo ""$GREEN"Finished"$RESET""
+    echo ""
+pause2
+        ;;  
+        
+#################################################################################################################################
+
+ 	"l"|"L")
+
+	
+pause2
+        ;;  
+        
+#################################################################################################################################
+
+ 	"m"|"M")
+
+	echo ""$GREEN"Visit yt-dlp GIT!!!!!!!!!!! Support them."$RESET""
+	echo ""$GREEN"This is an amazing project and fun to interact with."$RESET""
+pause2
+    xdg-open https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#installation
+    echo ""
+    echo ""
+pause2
+        ;;                            
+              
+                      
+#################################################################################################################################
+
+ 	"z"|"Z")
+        break
+        ;;
+            *)
+            echo "Invalid Choice, Please try again"
+            ;;
+    esac
+    done
+
+###################################################################################################################TWO
+# do something in 2 Preset audio 
+
+	;;
+
+	"2"|"2")
+		
+	echo ""$GREEN"MP3 Audio only Pre set options, Quality 5 [medium], saved in folder of your choice"
+   	echo ""$GREEN"You ready? (Y/N)  "$RESET""
+
+ 	read -n 1 userin 
+ 	#Need a user input.YorN
+	if [[ $userin == "N" || $userin == 'n' ]]; then 
+	echo ""
+	echo ""$RED"GOODBYE!!!!!!!!!!!!!!"$RESET""
+	#Exit to main menu
+	echo ""
+
+	elif [[ $userin == "Y" || $userin == 'y' ]]; then	
+	_repeat="Y" 
+	# Repeat the user input for another URL
+	while [ $_repeat = "Y" ]
+	do
+	#yt-dlp --cookies-from-browser brave --cookies cookies.txt  <-- saves your browser cookies to text file
+	#Dont use --cookies when logged in yt could be banned if downloading many urls large data
+	#refer to yt-dlp read me ERROR: [youtube] 9sH7D8UmMKI: Sign in to confirm your age. error 
+	echo ""
+	echo ""$GREEN"Copy and paste the URL of the link then press Enter."$RESET""
+	read -p "Enter URL: " vidurl 
+	#Read user input URL
+	
+	echo ""	
+	echo ""$GREEN"Select directory to save file"$RESET"."
+pause2
+	echo ""
+	savepath=$(zenity --file-selection --title "Select the directory" --directory 2>/dev/null)
+	echo "You chose:"   $savepath
+	echo ""
+
+createfolder
+	#Ask user if they want to create a folder
+ 
+	echo ""
+	echo "yt-dlp -x --parse-metadata '%(uploader|)s:%(meta_artist)s' --audio-format mp3 --audio-quality 5 -P $savepath"$foldersave" $vidurl"
+	#When finished it shows the user what they executed	
+	echo ''
+    yt-dlp --extract-audio --parse-metadata "%(uploader|)s:%(meta_artist)s" --audio-format mp3 --audio-quality 5 -P $savepath"$foldersave" $vidurl &&
+    # --parse-metadata "%(uploader|)s:%(meta_artist)s"  Putting Artist first
+    # --cookies  see above.
+	#Change audio quality to your liking 0 [best] 10 [worst].
+        
+    
+rename && 
+    #Funtion to remove () and [] and everything between in the naming		
+	echo ""	
+	echo ""$GREEN"DONE!!"$RESET"" 
+	# Download and Conversion completed
+	echo -n ""$GREEN"Enter another URL? (Y/N)"$RESET""
+        read -n1 Input 
+        #Read user input N to exit Y to enter another URL   
+        echo
+        # Completes the line 
+        case $Input in
+                [Nn]):
+                _repeat="N" # No selected escape to main menu
+                ;;
+        esac
+done
+						
+	else
+	echo ""$RED" Error please enter either (Y/N)... "$RESET"" 
+	continue 
+	# We use continue to loop back if wrong input detected	
+	fi
+  	
+  	#echo "exit code $?"			
+	;;
+	
+
+####################################################################################################################THREE
+# do something in 3 User selected audio options
+
+	"3"|"3")
+	
+	echo ""$GREEN"Audio user selected options."
+   	echo ""$GREEN"You ready? (Y/N)  "$RESET""
+ 	read -n 1 userin 
+	if [[ $userin == "N" || $userin == 'n' ]]; then 
+	echo ""
+	echo ""$RED"GOODBYE!!!!!!!!!!!!!!"$RESET"" 		
+	echo ""
+	
+	elif [[ $userin == "Y" || $userin == 'y' ]]; then	
+	_repeat="Y" 
+	while [ $_repeat = "Y" ]
+	do
+	echo ""
+	echo ""$GREEN"Copy and paste the URL of the link then press Enter."$RESET""
+	read -p "Enter URL: " vidurl  
+	echo ""
+	echo ""$GREEN"Enter the audio format, ie aac, alac, flac, m4a, mp3, opus, ogg, vorbis, wav."$RESET""
+	read -p "Enter format: " format 
+	#This lets user select the format that FFMPEG will convert to
+	echo "You chose:"   $format 
+	echo ""
+	echo ""$GREEN"Enter the audio quality 0 [best] 10 [worst] or such as 64k [low] ."$RESET""
+	echo ""$GREEN"128k [typical] 256k [high] 1411k [CD quality]."$RESET""
+	read -p "Enter quality: " quality 
+	#Read user input quality
+	echo "You chose:"   $quality 
+	echo ""
+keepvid
+	echo ""$GREEN"Select directory to save file"$RESET"."
+	pause2
+	savepath=$(zenity --file-selection --title "Select the directory" --directory 2>/dev/null)
+	echo "You chose:" $savepath 
+	echo ""
+
+createfolder
+
+	echo "yt-dlp -x $save --audio-format $format --audio-quality $quality -P $savepath"$foldersave" $vidurl"
+	echo ""			
+    yt-dlp --extract-audio $save --audio-format $format --audio-quality $quality -P $savepath"$foldersave" $vidurl &&	
+        	
+rename && 	
+	echo ""	
+	echo ""$GREEN"DONE!!"$RESET"" 
+	echo -n ""$GREEN"Enter another URL? (Y/N)"$RESET""
+        read -n1 Input 
+        echo 
+        case $Input in
+                [Nn]):
+                _repeat="N" 
+                ;;
+        esac
+done
+						
+	else
+	echo ""$RED" Error please enter either (Y/N)... "$RESET"" 
+	continue 
+		
+	fi
+  	 			
+	;;
+
+####################################################################################################################THREE
+# do something in 4 Best quality video and audio
+#
+
+
+
+	"4"|"4")
+
+	echo ""$GREEN"Best quality Video and Audio"
+   	echo ""$GREEN"You ready? (Y/N)  "$RESET""
+ 	read -n 1 userin 
+	if [[ $userin == "N" || $userin == 'n' ]]; then 
+	echo ""
+	echo ""$RED"GOODBYE!!!!!!!!!!!!!!"$RESET"" 
+	echo ""
+	elif [[ $userin == "Y" || $userin == 'y' ]]; then	
+	_repeat="Y" 
+	while [ $_repeat = "Y" ]
+	do
+	echo ""
+	echo ""$GREEN"Copy and paste the URL of the link then press Enter."$RESET""
+	read -p "Enter URL: " vidurl 
+	echo ""	
+	echo ""$GREEN"Select directory to save file"$RESET"."
+pause2
+	savepath=$(zenity --file-selection --title "Select the directory" --directory 2>/dev/null) 
+	echo ""
+
+createfolder 
+
+	echo ""
+	echo "yt-dlp --format "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4] / bv*+ba/b" -P $savepath"$foldersave" $vidurl"
+	#Show command
+	echo ""					
+    yt-dlp --format "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4] / bv*+ba/b" -P $savepath"$foldersave" $vidurl &&
+
+        
+		
+rename &&	
+	echo ""	
+	echo ""$GREEN"DONE!!"$RESET"" 
+	echo -n ""$GREEN"Enter another URL? (Y/N)"$RESET""
+        read -n1 Input 
+        echo 
+        case $Input in
+                [Nn]):
+                _repeat="N" 
+                ;;
+        esac
+done
+						
+	else
+	echo ""$RED" Error please enter either (Y/N)... "$RESET"" 
+	continue 
+		
+	fi
+
+	;;
+
+####################################################################################################################
+# do something in 5 Best audio quality possible
+#
+
+
+
+	"5"|"5")
+
+	echo ""$GREEN"Best quality Audio"
+   	echo ""$GREEN"You ready? (Y/N)  "$RESET""
+ 	read -n 1 userin 
+	if [[ $userin == "N" || $userin == 'n' ]]; then 
+	echo ""
+	echo ""$RED"GOODBYE!!!!!!!!!!!!!!"$RESET"" 
+	echo ""
+	elif [[ $userin == "Y" || $userin == 'y' ]]; then	
+	_repeat="Y" 
+	while [ $_repeat = "Y" ]
+	do
+	echo
+	echo ""$GREEN"Copy and paste the URL of the link then press Enter."$RESET""
+	read -p "Enter URL: " vidurl 
+	echo ""	
+formatlist &&
+	echo ""
+	echo ""$GREEN"If you want to download format of the audio use a / as a separator. Example"$RESET"" 
+	echo ""$GREEN"140/m4a or mp4 or multiple 140/19/33/m4a or mp4 only if they exist"$RESET""
+	echo ""
+	echo ""$GREEN"Enter the number associated with the audio in the format list."$RESET""
+	read -p ""$GREEN"Enter List number:"$RESET" " listnum 
+	#Using the yt-dlp list formats num
+	echo ""
+	echo "You chose:"   $listnum
+	echo ""	
+	echo ""$GREEN"Select directory to save file"$RESET"."
+pause2
+	savepath=$(zenity --file-selection --title "Select the directory" --directory 2>/dev/null) 
+	echo "" 
+	echo "You chose:"   $savepath
+	echo ""
+
+createfolder
+
+	echo "yt-dlp --extract-audio --format $listnum/bestaudio* -P $savepath"$foldersave" $vidurl" 
+	echo ""
+    yt-dlp --extract-audio --format $listnum/bestaudio* -P $savepath"$foldersave" $vidurl && 
+    
+rename &&
+	echo ""	
+	echo ""$GREEN"DONE!!"$RESET"" 
+	echo -n ""$GREEN"Enter another URL? (Y/N)"$RESET""
+        read -n1 Input 
+        echo 
+        case $Input in
+                [Nn]):
+                _repeat="N" 
+                ;;
+        esac
+done
+						
+	else
+	echo ""$RED" Error please enter either (Y/N)... "$RESET"" 
+	continue 
+		
+	fi
+	 
+	
+
+	
+
+	;;
+
+
+
+####################################################################################################################
+# do something in 6
+#
+
+
+
+	"6"|"6")
+
+	
+	pause2
+
+	;;
+
+####################################################################################################################
+# do something in 7
+#
+
+
+	"7"|"7")
+
+	
+	pause2
+
+	
+	;;
+
+####################################################################################################################
+# do something in 8
+#
+
+
+
+	"8"|"8")
+	
+	pause2
+
+	;;
+
+####################################################################################################################
+# do something in 9
+#
+
+
+
+	"9"|"9")
+
+	
+	pause2
+	;;
+
+####################################################################################################################
+# do something in 10
+#
+
+
+
+	"10"|"10")
+
+	
+	pause2
+	;;
+
+####################################################################################################################
+# do something in 11
+#
+
+
+
+	"11"|"11")
+
+	
+	pause2
+	;;
+
+####################################################################################################################
+# do something in 12
+#
+
+
+
+	"12"|"12")
+
+        
+	pause2
+	;;
+
+####################################################################################################################
+# do something in 13
+#
+
+
+
+	"13"|"13")
+
+	
+	pause2
+
+
+	;;
+
+####################################################################################################################
+# do something in 14
+#
+
+
+
+	"14"|"14")
+
+	
+	pause2
+
+	;;
+
+####################################################################################################################
+# do something in 15
+#
+
+
+
+	"15"|"15")
+
+	
+	pause2
+
+	;;
+
+####################################################################################################################
+# do something in 16
+#
+
+
+
+	"16"|"16")
+
+	
+	pause2
+
+	;;
+
+####################################################################################################################
+# do something in 17
+#
+
+
+
+	"17"|"17")
+
+	
+	pause2
+
+	;;
+
+####################################################################################################################
+# do something in 18
+#
+
+
+
+	"18"|"18")
+
+	echo "EMPTY"
+
+	pause2
+
+	;;
+
+####################################################################################################################
+# do something in 19
+#
+
+
+
+	"19"|"19")
+	
+	pause2
+
+	;;
+
+####################################################################################################################
+# do something in 20
+#
+
+
+
+	"20"|"20")
+
+	 
+    pause2
+
+	;;
+
+####################################################################################################################
+# do something in 21
+#
+
+
+	"21"|"21")
+
+	
+    pause2
+
+
+        ;;
+
+
+####################################################################################################################
+# do something in 22
+#
+
+
+
+	"22"|"22")
+
+	
+    	pause2
+
+		;;
+
+####################################################################################################################
+####################################################################################################################
+# do something in 23
+#
+
+
+
+	"23"|"23")
+
+	a
+    	pause2
+
+	;;
+
+####################################################################################################################
+####################################################################################################################
+# do something in 24  SUBMENU II
+#
+
+
+
+	"24"|"24")
+
+		 while :
+    	 do
+	echo "          	~~~~~~~~~~~~~~~~~~~~~~~~"
+	echo "            	  "$HOT_PINK"S U B - M E N U II"$RESET""
+	echo "             	    "$BLUE"F.F. "$YELLOW"Ver 13.0"$RESET""
+	echo "               	     "$LIME_YELLOW"Bannana Head"$RESET""
+	echo "          	~~~~~~~~~~~~~~~~~~~~~~~~"
+	echo ""
+	echo ""
+    echo -e "\tA. "$YELLOW"Print this menu again"$RESET""
+    echo -e "\tB. "$GREEN"Convert"$RESET" m4a to mp3."
+    echo -e "\tC. "$GREEN"Rip DVD"$RESET" VOBs to Your Choice Format: Video Audio Subtitles."
+    echo -e "\tD. "$GREEN"Install"$RESET" DVDcss Keys."
+    echo -e "\tE. "$GREEN"Play"$RESET"    Video using ffplay."
+    echo -e "\tF. "$GREEN"Install"$RESET" EMPTY"
+    echo -e "\tG. "$GREEN"Install"$RESET" EMPTY"
+    echo -e "\tH. "$GREEN"Install"$RESET" EMPTY"
+    echo -e "\tI. "$GREEN"Install"$RESET" EMPTY"
+    echo -e "\tZZ. "$YELLOW"Return to main menu"$RESET""
+    echo ""
+    echo -n ""$LIME_YELLOW"Please enter your choice and press Enter:"$RESET""
+    echo ""
+
+
+    read choice24
+    case $choice24 in
+        "a"|"A")
+
+
+
+
+
+	;;
+
+####################################################################################################################
+#Converting m4a to mp3 useful for car audio 
+
+
+        "b"|"B")
+
+	echo ""$GREEN"Convert m4a to mp3 batch or silgle file, Why you ask?"
+	echo "My car audio only plays mp3s, so I wanted this."
+   	echo ""$GREEN"You ready? (Y/N)  "$RESET""
+
+ 	read -n 1 userin 
+	if [[ $userin == "N" || $userin == 'n' ]]; then 
+	#Need a user input.YorN
+	echo ""
+	echo ""$RED"GOODBYE!!!!!!!!!!!!!!"$RESET"" 
+	#Exit to main menu
+	echo ""
+
+	elif [[ $userin == "Y" || $userin == 'y' ]]; then
+	
+	_repeat="Y" 
+	# Repeat the user input for another URL
+
+	while [ $_repeat = "Y" ]
+	do
+	echo ""
+	echo ""$GREEN"Convert a single file (S) or a batch (B) (S/B)?"$RESET""
+   	 
+	read -n 1 convt
+	if [[ $convt == "S" || $convt == 's' ]]; then 
+	#Need a user input. 
+	echo ""
+	echo ""$GREEN"Select the file to be converted."$RESET""
+pause2
+	single=$(zenity --file-selection --title "Select the file to be converted." 2>/dev/null) 
+	#/dev/null quiet zenity warning
+	echo ""
+	echo "You chose:"   $single
+	echo ""
+	#Prints file chosen
+	echo ""
+	var1=$single
+	#var1=file to be converted
+	filedir=${var1%/*.m4a}
+	#echo "$filedir"
+	#Prints dir minus file name
+	#Need the directory of the file since ffmpeg places the converted files back in source dir.
+	#Stripping the /*.m4a out and keeping the path
+	echo ""
+	echo ""$GREEN"Enter the bitrate 64k [Low] 128k [Medium] 256k [High]"$RESET""   
+	read -p "Enter Bitrate: " bitrate 
+	#Read user input bitrate 
+	echo ""
+	echo "You chose:"   $bitrate
+	echo ""
+	echo ""$GREEN"Enter the Compression level 0 [low-bigger file] 10 [High-smaller file]"$RESET""   
+	read -p "Enter Compression: " compression 
+	#Read user input compression
+	echo ""
+	echo "You chose:"   $compression
+	echo ""
+	echo ""$GREEN"Enter the Quality level 0 [Best] 10 [Worst]"$RESET""   
+	read -p "Enter Quality: " quality 
+	#Read user input quality
+	echo ""
+	echo "You chose:"   $quality
+	echo ""
+	echo ""$GREEN"Select the directory to save the file"$RESET""
+pause2
+	savdir=$(zenity --file-selection --title "Select the directory" --directory 2>/dev/null) 
+	echo ""
+	echo "You chose:"   $savdir
+	#Prints save dir 
+	echo ""
+	ffmpeg -hide_banner -i "$single" -ac 2 -b:a "$bitrate" -compression_level "$compression" -q:a "$quality" "${single%.m4a}.mp3" &&
+	#Conversion from m4a to mp3
+	#-loglevel quiet<--- forgot why I wrote this
+	
+	for file in "$filedir"/*.mp3; do mv "$file" -t "$savdir"; done &&
+	echo ""
+	#Moving the converted files to the selected saving dir
+	
+	
+	elif [[ $convt == "B" || $convt == 'b' ]]; then
+	echo ""
+	echo ""$GREEN"Select the directory of the files."$RESET""
+	folderdir=$(zenity --file-selection --title "Select the directory to be converted" --directory 2>/dev/null) 
+	echo "You chose:"   $folderdir
+	echo ""
+	echo ""$GREEN"Select the directory to save the files."$RESET""
+	savdir=$(zenity --file-selection --title "Select the directory to save converted files." --directory 2>/dev/null) 
+	echo "You chose:"   $savdir
+	echo ""
+	echo ""$GREEN"Enter the bitrate 64k [Low] 128k [Medium] 256k [High]"$RESET""   
+	read -p "Enter Bitrate: " bitrate
+	echo "You chose:"  $bitrate
+	echo ""
+	echo ""$GREEN"Enter the Compression level 0 [low-bigger file] 10 [High-smaller file]"$RESET""   
+	read -p "Enter Compression: " compression 
+	echo "You chose:"   $compression
+	echo ""
+	echo ""$GREEN"Enter the Quality level 0 [Best] 10 [Worst]"$RESET""   
+	read -p "Enter Quality: " quality 
+	echo "You chose:"   $quality
+	echo ""
+	
+	cd $folderdir
+	#Changing Path to the files 
+	for file in *.m4a;
+  	do name=`echo "$file" | cut -d'.' -f1`
+  	echo "$name"
+  	#Loop through files in folder for .m4a and removing the .m4a to preserve the name
+  	
+  	ffmpeg -hide_banner -i "$file" -ac 2 -b:a "$bitrate" -compression_level "$compression" -q:a "$quality" "${name}.mp3" -y &&
+	#Conversion from m4a to mp3 
+	
+	for file in "$folderdir"/*.mp3; do mv "$file" -t "$savdir"; done &&
+	echo ""
+	#Moving the converted files to the selected saving dir
+done
+	
+	else
+	echo ""$RED" Error please enter either. (S/B) "$RESET"" 
+	continue 
+	# We use continue to loop back if wrong input detected	
+	fi
+	
+	echo ""	
+	echo ""$GREEN"DONE!!"$RESET"" 
+	# Download and Conversion completed
+	echo -n ""$GREEN"Convert another? (Y/N)"$RESET""
+        read -n1 Input 
+        #Read user input N to exit Y to enter another URL
+        echo 
+        # Completes the line
+        case $Input in
+                [Nn]):
+                _repeat="N" # No selected escape to main menu
+                ;;
+        esac
+done
+						
+	else
+	echo ""$RED" Error please enter either. (Y/N) "$RESET"" 
+	continue 
+	# We use continue to loop back if wrong input detected
+		
+	fi
+
+        ;;
+
+#################################################################################################################################
+#Rip DVD and convert to mp4  DVD has subtitles
+#I chose to copy VOB files locally instead of doing on the fly
+#Everything stored in /tmp so on restart its all cleared.
+
+ 	"c"|"C")
+
+showstreams(){
+	ffmpeg -hide_banner -i /tmp/concat_file.txt
+	#Show user the mapping of DVD from the created concat file
+}
+
+showcodecs(){
+	
+	 gnome-terminal  --geometry=120x54 -- bash -c "ffmpeg -hide_banner -codecs; exec bash"
+	
+}
+
+mapping(){ 
+	#User selects mapping. At times when not done audio is absent.
+	echo ""$GREEN"Their may be seveal video streams available for the video, audio and subtitles. You have a choice to"
+	echo "map all streams or pick the map streams. In some instances if you rip a DVD the audio may be absent, then you"
+	echo "will have to pick a stream that renders the audio."$RESET""
+	echo ""
+	echo ""$GREEN"Map All(A) or Select Mapping(S)"$RESET""
+	echo ""
+	read -n 1 convt
+	if [[ $convt == "A" || $convt == 'a' ]]; then 
+	#Need a user input.  Map all streams for video and audio selected.
+	echo ""
+	mapstreamv=-map\ 0:v
+	mapstreama=-map\ 0:a
+	mapstreamsub=-map\ 0:s
+	#Variables for ffmpegcmd.txt
+	
+	
+	
+	elif [[ $convt == "S" || $convt == 's' ]]; then
+	echo ""
+	echo ""$GREEN"The streams will now be shown. You will be asked to select the video, audio and subtitle streams next."$RESET""
+pause2	
+	echo ""
+showstreams &&
+	#Show user available streams to select.
+	echo ""
+	echo ""
+	echo ""$GREEN"Getting Streams.....You will see something like >"$RESET""$LIME_YELLOW" Stream #0:1[0x1e0]: for Video: Stream #0:3[0x80]: for Audio:"
+	echo "and #0:2[0x20]: Subtitle: for Subtitles.  #0"$RESET""$GREEN" represents the stream, you would enter 0"
+	echo ""
+	echo ""$GREEN"Enter video stream. Then press Enter"$RESET""   
+	read -p "Enter Stream: " mapstreamv1
+	#User enters video stream
+	echo ""
+	echo ""$GREEN"Enter audio stream.Then press Enter."$RESET""   
+	read -p "Enter Stream: " mapstreama1
+	#User entrs audio stream
+	echo ""
+	echo ""$GREEN"Enter subtitle stream.Then press Enter."$RESET""
+	read -p "Enter Stream: " mapstreamsub1
+	#user enters subtitle streams.
+	
+	mapstreamv=-map\ 0:v:$mapstreamv1 
+	mapstreama=-map\ 0:a:$mapstreama1
+	mapstreamsub=-map\ 0:s:$mapstreamsub1
+	#Variables for ffmpegcmd.txt
+	
+	else
+	echo ""$RED" Error please enter either (A/S). "$RESET"" 
+	continue 
+	#We use continue to loop back if wrong input detected	
+	fi
+	#End of mapping function
+}
+
+	touch /tmp/ffmpegcmd.txt
+	#Create file ffmpeg commands stored here created by user.
+
+	echo ""$GREEN"Rip DVD VOB files to other format"
+   	echo ""$GREEN"You ready? (Y/N).  "$RESET""
+	#Start
+	
+ 	read -n 1 userin 
+	if [[ $userin == "N" || $userin == 'n' ]]; then 
+	#Need a user input.
+	echo ""
+	echo ""$RED"GOODBYE!!!!!!!!!!!!!!"$RESET"" 
+	#Exit to main menu.
+	echo ""
+
+	elif [[ $userin == "Y" || $userin == 'y' ]]; then
+	
+	_repeat="Y" 
+	# Repeat the user input for another URL.
+
+	while [ $_repeat = "Y" ]
+	do
+	touch /tmp/concat.txt
+	#Create file to concat all VOB files in /tmp.
+	echo ""
+	echo ""$GREEN"Select the folder to where the TS_VIDEO VOB files are located."
+	echo "Usually for DVD /media/"user"/TS_VIDEO"$RESET""
+pause2
+	echo ""
+	vobpath=$(zenity --file-selection --title "Select the directory" --directory 2>/dev/null)
+	#User selects location of VOB files.
+	echo ""
+	echo "You chose:"  $vobpath
+	echo ""
+	cat $vobpath/*.VOB | dd of=/tmp/concat_file.txt status=progress &&  #need to add VIDEO_TS.VOB. *.VOB to add all
+	#Concate VOBs and save in /tmp/concat.txt.
+	echo ""
+	echo ""$GREEN"Select the folder to save your video."$RESET""
+pause2
+	videopath=$(zenity --file-selection --title "Select the directory" --directory 2>/dev/null)
+	#User selects folder to save video.
+	echo ""
+	echo "You chose:"  $videopath
+	echo ""
+	echo ""$GREEN"Enter a name for your video, then press Enter"$RESET""   
+	read -p "Enter Name: " out
+	#User enters output name of video.
+	echo ""
+	echo "You chose:"  $out
+	echo ""
+	echo ""$GREEN"You will now be shown the codecs for Video, Audio and Subtitles based on your choices."$RESET""
+	echo ""
+pause2
+showcodecs &&
+	
+	echo ""
+	echo ""$GREEN"Enter a conversion format, this may be mp4, mkv, flv, avi, asf, mpeg, m4v."   
+	echo "This will be your output format. Be sure to reference the codec chart for all."
+	echo "Then press enter"$RESET""
+	read -p "Enter Format: " format
+	#User enters output format.
+	echo ""
+	echo "You chose:"  $format
+	echo ""
+	# .out   Vcoding Acoding Subtitles
+	# mkv	any		any
+	# mp4	any		any		dvdsub
+	# flv	h264	aac
+	# avi	any		any
+	# asf	any		any
+	# mpeg	h246	mp3
+	# m4v	h246	acc
+	echo ""$GREEN"Enter a video codec such as h264. Their are may but here is small sample based on your selected format"   
+	echo "For mp4, mkv, avi, asf, select any video codec. For flv, mpeg, m4v select h246." 
+	echo  "Be sure to reference the codec chart for all. Then press Enter "$RESET""
+	read -p "Enter Vcodec: " vcodec
+	#User enters video codec, this is based on output format.
+	echo ""
+	echo "You chose:"  $vcodec
+	echo ""
+	echo ""$GREEN"Enter a audio codec such as aac, ac3. Their are many but here is small sample based on your selected format"   
+	echo "For mp4, mkv, avi, asf, select any audio codec. For flv, m4v aac, for mpeg mp3. Then press Enter"$RESET""
+	read -p "Enter Acodec: " acodec
+	#User enters audio codec.
+	echo ""
+	echo "You chose:"  $acodec
+	echo ""
+	echo ""$GREEN"Enter subtitle codec, such as dvdsub Be sure to reference the codec chart for all.. Then press Enter"$RESET""   
+	read -p "Enter Scodec: " subcodec
+	#User subtitle codec.
+	echo ""
+	echo "You chose:"  $subcodec
+	echo ""
+	echo ""$GREEN"Enter audio bitrate, 192k typical. Then press Enter"$RESET""   
+	read -p "Enter Bitrate: " bitrate
+	#User enters audio bitrate.
+	echo ""
+	echo "You chose:"  $bitrate
+	echo ""
+	echo ""$GREEN"Enter Quality of video, ranges from 0 to 51: 0 is [Best], 18 is [considered visually lossless]. Then press Enter"$RESET""   
+	read -p "Enter Quality: " quality
+	#User enters Quality.
+	echo ""
+	echo "You chose:"  $quality
+	echo ""
+	
+mapping &&
+
+	echo "ffmpeg -hide_banner -i /tmp/concat_file.txt   $mapstreamsub -c:s $subcodec  $mapstreamv -c:v $vcodec  $mapstreama -c:a $acodec -ac 2 -b:a $bitrate -crf $quality $videopath/$out.$format" > /tmp/ffmpegcmd.txt	
+	#Puts final command in ffmpegcmd text file which is then sourced.
+
+	cat "/tmp/ffmpegcmd.txt"
+	#Shows final command to be executed.
+	pause2 
+	echo ""
+	source /tmp/ffmpegcmd.txt
+	#Execute command.
+	
+	
+	echo ""	
+	echo ""$GREEN"DONE!!"$RESET"" 
+	#Video completed.
+	echo -n ""$GREEN"Convert another? (Y/N)"$RESET""
+        read -n1 Input 
+        #Read user input N to exit Y to enter another URL
+        echo 
+        # Completes the line
+        case $Input in
+                [Nn]):
+                _repeat="N" # No selected escape to main menu
+                ;;
+        esac
+done
+						
+	else
+	echo ""$RED" Error please enter either (Y/N)... "$RESET"" 
+	continue 
+	# We use continue to loop back if wrong input detected
+		
+	fi
+
+
+        ;;
+
+#################################################################################################################################
+
+
+ 	"d"|"D")
+
+	echo ""$GREEN"Install FFMPEG via PPA ppa:ubuntuhandbook1/ffmpeg7."$RESET""
+	echo ""$GREEN"Are you ready?."$RESET""
+pause2		
+	sudo apt-get install -y libdvd-pkg &&
+	sudo dpkg-reconfigure libdvd-pkg &&
+	dpkg -l | grep libdvd-pkg
+	#apt list --installed | grep dvd
+	#Dont use above apt in a script, WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+	#The apt(8) commandline is designed as an end-user tool and it may change behavior between versions.
+pause2
+
+        ;;
+
+#################################################################################################################################
+
+
+ 	"e"|"E")
+
+	echo ""$GREEN"Select the file to be played using ffplay."$RESET""
+pause2
+	playfile=$(zenity --file-selection --title "Select the file to be Played." 2>/dev/null) 
+	#/dev/null quiet zenity warning
+	echo ""
+	echo "You chose:"   $playfile 
+	echo ""
+pause2 
+	#Prints file chosen
+	echo ""
+	ffplay -hide_banner $playfile
+pause2
+
+        ;;
+
+#################################################################################################################################
+
+
+ 	"f"|"F")
+
+       
+	pause2
+	echo ""$YELLOW"Empty"
+            
+
+        ;;
+
+#################################################################################################################################
+
+
+ 	"g"|"G")
+
+
+	echo ""$YELLOW"Empty"
+	echo ""
+
+	pause2
+
+
+        ;;
+
+#################################################################################################################################
+
+
+ 	"h"|"H")
+
+	echo ""$YELLOW"Empty"
+	echo ""
+
+
+	pause2
+
+
+        ;;
+
+#################################################################################################################################
+
+
+ 	"i"|"I")
+
+    echo ""$YELLOW"Empty"
+	echo ""
+	pause2
+
+        ;;
+#################################################################################################################################
+
+ 	"zz"|"ZZ")
+        break
+        ;;
+            *)
+            echo ""$RED"Invalid Choice, Please try again"$RESET""
+            ;;
+    esac
+    done
+
+
+
+
+
+
+
+####################################################################################################################
+# do something in 00
+
+	;;
+
+       "99"|"99")
+        exit
+        ;;
+            *)
+            echo ""$RED"Invalid Choice, Please try again"$RESET""
+            ;;
+    esac
+    done
+    
+#-------------------------------------------------------------------------    
+   #END OF FILE
+    
+
