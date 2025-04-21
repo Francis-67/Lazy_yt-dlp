@@ -1,4 +1,4 @@
-Interactive command line interface to interact with yt-dlp. Tetsed on Ubuntu 24.04 LTS
+Interactive command line interface to interact with yt-dlp. Tested on Ubuntu 24.04 LTS
 
 Thanks for checking this out.
 
